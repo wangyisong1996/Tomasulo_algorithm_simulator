@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+
+<title> Tomasulo Algorithm Simulator </title>
+
+<script src="libs/js/jquery-3.2.1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="libs/css/bootstrap.min.css" />
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="libs/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<link rel="stylesheet" href="css/non-responsive.css" type="text/css" /> 
+
+<script src="js/main.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/config.js"></script>
+<script src="js/CPU.js"></script>
+<script src="js/HDL.js"></script>
+
+</head>
+
+<body onload="setTimeout(main.do_load, 100);">
+<script> document.body.style.zoom = 0.9 * Math.max(window.screen.width, 1440) / 1440; </script>
+
+<p id="loading_text"> Loading ... </p>
+
+<div id="main_div" class="container" style="visibility:hidden">
+	<div class="row">
+		<div class="col-xs-7">
+			<h3>
+				Tomasulo Algorithm Simulator | 
+				CPU Cycles: <span id="CPU_cycles"></span>
+				PC: <span id="CPU_PC"></span>
+			</h3>
+		</div>
+		<div class="col-xs-5">
+			<h3>
+				<button class="btn btn-danger" id="btn_power">
+					<span class="glyphicon glyphicon-off"></span>
+				</button>
+				<button class="btn btn-primary" id="btn_run">
+					<span class="glyphicon glyphicon-play"></span>
+				</button>
+				<button class="btn btn-warning" id="btn_pause">
+					<span class="glyphicon glyphicon-pause"></span>
+				</button>
+				<button class="btn btn-default" id="btn_step">
+					<span class="glyphicon glyphicon-step-forward"></span>
+				</button>
+				<button class="btn btn-default" id="btn_options">
+					<span class="glyphicon glyphicon-option-vertical"></span>
+				</button>
+			</h3>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-4">
+			<p>
+				<strong>[Memory Controller]</strong>
+				<strong>Running:</strong> <span id="MC_is_running">false</span>
+				<strong>Type:</strong> <span id="MC_type"></span><br />
+				<strong>Addr:</strong> <span id="MC_addr"></span>
+				<strong>Name:</strong> <span id="MC_name"></span>
+				<strong>Value:</strong> <span id="MC_value"></span>
+			</p>
+		</div>
+		<div class="col-xs-4">
+			<p>
+				<strong>[FP Adder]</strong>
+				<strong>Running:</strong> <span id="FPA_is_running">false</span>
+				<strong>Type:</strong> <span id="FPA_type"></span><br />
+				<strong>Src1:</strong> <span id="FPA_src1"></span>
+				<strong>Src2:</strong> <span id="FPA_src2"></span>
+				<strong>Name:</strong> <span id="FPA_name"></span>
+				<strong>Value:</strong> <span id="FPA_value"></span>
+			</p>
+		</div>
+		<div class="col-xs-4">
+			<p>
+				<strong>[FP Multiplier]</strong>
+				<strong>Running:</strong> <span id="FPM_is_running">false</span>
+				<strong>Type:</strong> <span id="FPM_type"></span><br />
+				<strong>Src1:</strong> <span id="FPM_src1"></span>
+				<strong>Src2:</strong> <span id="FPM_src2"></span>
+				<strong>Name:</strong> <span id="FPM_name"></span>
+				<strong>Value:</strong> <span id="FPM_value"></span>
+			</p>
+		</div>
+	</div>
+	
+	<div class="row">
+		<table class="table table-borderless">
+			<tr>
+				<td class="col-xs-6">
+					<div class="scrollable" style="height:300px">
+						<table id="instruction_queue_table" class="table table-hover table-bordered">
+							<caption> Instruction Queue </caption>
+							<tr>
+								<th class="col-xs-1"> PC </th>
+								<th class="col-xs-1"> Name </th>
+								<th class="col-xs-1"> Dest </th>
+								<th class="col-xs-1"> Src1 </th>
+								<th class="col-xs-1"> Src2 </th>
+								<th class="col-xs-1"> Issue </th>
+								<th class="col-xs-1"> Execution </th>
+								<th class="col-xs-1"> Writeback </th>
+							</tr>
+						</table>
+					</div>
+				</td>
+				<td class="col-xs-4">
+					<div class="scrollable" style="height:300px">
+						<table id="load_store_queue_table" class="table table-hover table-bordered">
+							<caption> Load/Store Queue </caption>
+							<tr>
+								<th class="col-xs-1"> Name </th>
+								<th class="col-xs-1"> Busy </th>
+								<th class="col-xs-1"> PC </th>
+								<th class="col-xs-1"> V<sub>k</sub> </th>
+								<th class="col-xs-1"> Q<sub>k</sub> </th>
+								<th class="col-xs-1"> Addr </th>
+							</tr>
+							<tr>
+								<td> 233 </td>
+							</tr>
+						</table>
+					</div>
+				</td>
+				<td class="col-xs-2">
+					<div class="scrollable" style="height:300px">
+						<table id="memory_table" class="table table-hover table-bordered">
+							<caption> Memory </caption>
+							<tr>
+								<th class="col-xs-1"> Addr </th>
+								<th class="col-xs-1"> Value </th>
+							</tr>
+							<tr>
+								<td> 2333 </td>
+								<td> 123.456 </td>
+							</tr>
+						</table>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div class="row">
+		<table class="table table-borderless">
+			<tr>
+				<td class="col-xs-5">
+					<table id="RS_add_mul_table" class="table table-hover table-bordered">
+						<caption> Reservation Stations </caption>
+						<tr>
+							<th class="col-xs-1"> Name </th>
+							<th class="col-xs-1"> Busy </th>
+							<th class="col-xs-1"> Op </th>
+							<th class="col-xs-1"> PC </th>
+							<th class="col-xs-1"> V<sub>j</sub> </th>
+							<th class="col-xs-1"> Q<sub>j</sub> </th>
+							<th class="col-xs-1"> V<sub>k</sub> </th>
+							<th class="col-xs-1"> Q<sub>k</sub> </th>
+						</tr>
+					</table>
+				</td>
+				<td class="col-xs-7">
+					<div class="scrollable" style="width:659px">
+						<table id="FP_registers_table" class="table table-hover table-bordered">
+							<caption> Floating Point Registers </caption>
+							<tr>
+								<th class="col-xs-1"> Register ID </th>
+							</tr>
+							<tr>
+								<th> Value </th>
+							</tr>
+						</table>
+						
+						<table id="INT_registers_table" class="table table-hover table-bordered">
+							<caption> Integer Registers </caption>
+							<tr>
+								<th class="col-xs-1"> Register ID </th>
+							</tr>
+							<tr>
+								<th> Value </th>
+							</tr>
+						</table>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div class="modal fade" id="options_modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">
+					Options
+					&nbsp;
+					<div class="label label-warning">
+						Warning: CPU will be reset on saving changes !
+					</div>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="options_ins" class="control-label">
+							Instructions:
+						</label>
+						<textarea class="form-control" id="options_ins" rows="5"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="options_mem" class="control-label">
+							Memory values:
+						</label>
+						<textarea class="form-control" id="options_mem" rows="5"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="options_FP" class="control-label">
+							Floating point register values:
+						</label>
+						<textarea class="form-control" id="options_FP" rows="5"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="options_INT" class="control-label">
+							Integer register values:
+						</label>
+						<textarea class="form-control" id="options_INT" rows="5"></textarea>
+					</div>
+					
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					Close
+				</button>
+				<button type="button" class="btn btn-primary" id="options_save">
+					Save changes
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+
+</html>
