@@ -495,11 +495,15 @@ var CPU = (function() {
 					memory_controller.t_remaining.set(
 						memory_controller.t_remaining.val() - 1);
 				}
-			} else {
+			}
+			
+			// [immediately after CDB broadcast]
+			if (memory_controller.is_running.val() == false ||
+				memory_controller.name.val() == WB_name) {
 				// not running : try to get a request from the queues
 				var e = undefined;
 				var check = (t) => {
-					if (t.busy.val() != "Yes") {
+					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
 					if (!e || t.PC.val() < e.PC.val()) {
@@ -561,11 +565,15 @@ var CPU = (function() {
 					// WIP
 					FP_adder.t_remaining.set(FP_adder.t_remaining.val() - 1);
 				}
-			} else {
+			}
+			
+			// [immediately after CDB broadcast]
+			if (FP_adder.is_running.val() == false ||
+				FP_adder.name.val() == WB_name) {
 				// not running : find a ready RS
 				var e = undefined;
 				var check = (t) => {
-					if (t.busy.val() != "Yes") {
+					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
 					if (!e && t.Qj.val() == "" && t.Qk.val() == "") {
@@ -620,11 +628,15 @@ var CPU = (function() {
 					// WIP
 					FP_multiplier.t_remaining.set(FP_multiplier.t_remaining.val() - 1);
 				}
-			} else {
+			}
+			
+			// [immediately after CDB broadcast]
+			if (FP_multiplier.is_running.val() == false ||
+				FP_multiplier.name.val() == WB_name) {
 				// not running : find a ready RS
 				var e = undefined;
 				var check = (t) => {
-					if (t.busy.val() != "Yes") {
+					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
 					if (!e && t.Qj.val() == "" && t.Qk.val() == "") {
@@ -901,15 +913,16 @@ var CPU = (function() {
 			// (0) update cycles
 			cycles.set(cycles.val() + 1);
 			
-			// (2) execution
-			EXE();
-			
 			// (3) writeback
 			WB();
 			
 			// (1) instruction fetch
 			// IF needs forwarding from WB
 			IF();
+			
+			// (2) execution
+			// needs WB -> EXE forwarding for zero-latency EXE chains
+			EXE();
 			
 			// rising edge
 			HDL.rising_edge();
