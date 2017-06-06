@@ -1034,7 +1034,7 @@ var CPU = (function() {
 			
 			var e = undefined;
 			var check = (t) => {
-				if (t.is_running.val()) {
+				if (t.name == WB_name) {
 					e = t;
 				}
 			};
@@ -1075,7 +1075,7 @@ var CPU = (function() {
 			
 			var e = undefined;
 			var check = (t) => {
-				if (t.is_running.val()) {
+				if (t.name == WB_name) {
 					e = t;
 				}
 			};
