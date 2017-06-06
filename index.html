@@ -32,7 +32,7 @@
 <p id="loading_text"> Loading ... </p>
 
 <div id="main_div" class="container" style="visibility:hidden">
-	<div class="row">
+	<div class="row" style="margin-top: 0px">
 		<div class="col-xs-7">
 			<h3>
 				Tomasulo Algorithm Simulator | 
@@ -58,43 +58,6 @@
 					<span class="glyphicon glyphicon-option-vertical"></span>
 				</button>
 			</h3>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-4">
-			<p>
-				<strong>[Memory Controller]</strong>
-				<strong>Running:</strong> <span id="MC_is_running">false</span>
-				<strong>Type:</strong> <span id="MC_type"></span><br />
-				<strong>PC:</strong> <span id="MC_PC"></span>
-				<strong>Addr:</strong> <span id="MC_addr"></span>
-				<strong>Name:</strong> <span id="MC_name"></span>
-				<strong>Value:</strong> <span id="MC_value"></span>
-			</p>
-		</div>
-		<div class="col-xs-4">
-			<p>
-				<strong>[FP Adder]</strong>
-				<strong>Running:</strong> <span id="FPA_is_running">false</span>
-				<strong>Type:</strong> <span id="FPA_type"></span>
-				<strong>PC:</strong> <span id="FPA_PC"></span><br />
-				<strong>Src1:</strong> <span id="FPA_src1"></span>
-				<strong>Src2:</strong> <span id="FPA_src2"></span>
-				<strong>Name:</strong> <span id="FPA_name"></span>
-				<strong>Value:</strong> <span id="FPA_value"></span>
-			</p>
-		</div>
-		<div class="col-xs-4">
-			<p>
-				<strong>[FP Multiplier]</strong>
-				<strong>Running:</strong> <span id="FPM_is_running">false</span>
-				<strong>Type:</strong> <span id="FPM_type"></span>
-				<strong>PC:</strong> <span id="FPM_PC"></span><br />
-				<strong>Src1:</strong> <span id="FPM_src1"></span>
-				<strong>Src2:</strong> <span id="FPM_src2"></span>
-				<strong>Name:</strong> <span id="FPM_name"></span>
-				<strong>Value:</strong> <span id="FPM_value"></span>
-			</p>
 		</div>
 	</div>
 	
@@ -198,6 +161,117 @@
 				</td>
 			</tr>
 		</table>
+	</div>
+	
+	<div class="row">
+		<div class="col-xs-3">
+			<table class="table table-hover table-bordered">
+				<thead>
+					<caption> Memory Controller </caption>
+					<tr>
+						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Op </th>
+						<th class="col-xs-1"> Name </th>
+						<th class="col-xs-1"> Time </th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td> <span id="MC_is_running">false</span> </td>
+						<td> <span id="MC_type"></span> </td>
+						<td> <span id="MC_name"></span> </td>
+						<td> <span id="MC_time"></span> </td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-3">
+			<table id="FP_add_table" class="table table-hover table-bordered">
+				<thead>
+					<caption> Floating Point Adder </caption>
+					<tr>
+						<th class="col-xs-1"> Stage </th>
+						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Op </th>
+						<th class="col-xs-1"> PC </th>
+						<th class="col-xs-1"> Time </th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-3">
+			<table id="FP_mul_table" class="table table-hover table-bordered">
+				<thead>
+					<caption> Floating Point Multiplier </caption>
+					<tr>
+						<th class="col-xs-1"> Stage </th>
+						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Op </th>
+						<th class="col-xs-1"> PC </th>
+						<th class="col-xs-1"> Time </th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-3">
+			<table id="FP_div_table" class="table table-hover table-bordered">
+				<thead>
+					<caption> Floating Point Divider </caption>
+					<tr>
+						<th class="col-xs-1"> Stage </th>
+						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Op </th>
+						<th class="col-xs-1"> PC </th>
+						<th class="col-xs-1"> Time </th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	
+	<div class="row">
+		<div class="col-xs-12">
+			<p>
+			</p>
+		</div>
+	</div>
+	
+	
+	<div class="row">
+		<div class="col-xs-4">
+			<p></p>
+		</div>
+		<div class="col-xs-4">
+			<p>
+				<strong>[FP Adder]</strong>
+				<strong>Running:</strong> <span id="FPA_is_running">false</span>
+				<strong>Type:</strong> <span id="FPA_type"></span>
+				<strong>PC:</strong> <span id="FPA_PC"></span><br />
+				<strong>Src1:</strong> <span id="FPA_src1"></span>
+				<strong>Src2:</strong> <span id="FPA_src2"></span>
+				<strong>Name:</strong> <span id="FPA_name"></span>
+				<strong>Value:</strong> <span id="FPA_value"></span>
+			</p>
+		</div>
+		<div class="col-xs-4">
+			<p>
+				<strong>[FP Multiplier]</strong>
+				<strong>Running:</strong> <span id="FPM_is_running">false</span>
+				<strong>Type:</strong> <span id="FPM_type"></span>
+				<strong>PC:</strong> <span id="FPM_PC"></span><br />
+				<strong>Src1:</strong> <span id="FPM_src1"></span>
+				<strong>Src2:</strong> <span id="FPM_src2"></span>
+				<strong>Name:</strong> <span id="FPM_name"></span>
+				<strong>Value:</strong> <span id="FPM_value"></span>
+			</p>
+		</div>
 	</div>
 </div>
 

@@ -1093,11 +1093,11 @@ var CPU = (function() {
 			is_running : HDL.signal(
 				ui.update_func(ui_ele.MC.is_running)).set(false),
 			type : HDL.signal(ui.update_func(ui_ele.MC.type)).set(""),
-			PC : HDL.signal(ui.update_func(ui_ele.MC.PC)).set(""),
-			addr : HDL.signal(ui.update_func(ui_ele.MC.addr)).set(""),
+			PC : HDL.signal(() => 0).set(""),
+			addr : HDL.signal(() => 0).set(""),
 			name : HDL.signal(ui.update_func(ui_ele.MC.name)).set(""),
-			value : HDL.signal(ui.update_func(ui_ele.MC.value)).set(""),
-			t_remaining : HDL.signal(() => 0)
+			value : HDL.signal(() => 0).set(""),
+			t_remaining : HDL.signal(ui.update_func(ui_ele.MC.time)).set("")
 		};
 		
 		// (10) FP adder

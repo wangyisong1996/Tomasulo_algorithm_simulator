@@ -214,10 +214,8 @@ var ui = (function() {
 			elements.MC = {
 				is_running : $("#MC_is_running"),
 				type : $("#MC_type"),
-				PC : $("#MC_PC"),
-				addr : $("#MC_addr"),
 				name : $("#MC_name"),
-				value : $("#MC_value")
+				time : $("#MC_time")
 			};
 		})();
 		
