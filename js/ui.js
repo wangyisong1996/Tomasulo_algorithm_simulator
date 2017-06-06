@@ -214,6 +214,7 @@ var ui = (function() {
 			elements.MC = {
 				is_running : $("#MC_is_running"),
 				type : $("#MC_type"),
+				PC : $("#MC_PC"),
 				addr : $("#MC_addr"),
 				name : $("#MC_name"),
 				value : $("#MC_value")
@@ -225,6 +226,7 @@ var ui = (function() {
 			elements.FPA = {
 				is_running : $("#FPA_is_running"),
 				type : $("#FPA_type"),
+				PC : $("#FPA_PC"),
 				src1 : $("#FPA_src1"),
 				src2 : $("#FPA_src2"),
 				name : $("#FPA_name"),
@@ -237,6 +239,7 @@ var ui = (function() {
 			elements.FPM = {
 				is_running : $("#FPM_is_running"),
 				type : $("#FPM_type"),
+				PC : $("#FPM_PC"),
 				src1 : $("#FPM_src1"),
 				src2 : $("#FPM_src2"),
 				name : $("#FPM_name"),
