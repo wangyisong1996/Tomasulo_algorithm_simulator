@@ -29,6 +29,7 @@ var CPU = (function() {
 	var memory_controller;
 	var FP_adder;
 	var FP_multiplier;
+	var FP_divider;
 	
 	var WB_name;
 	var WB_value;
@@ -668,107 +669,89 @@ var CPU = (function() {
 				FP_adder[0].is_running.set(true);
 				FP_adder[0].PC.set(e.PC.val());
 			}
-			
-			
-			
-			/*
-			///
-			if (FP_adder.is_running.val() == true) {
-				// is running
-				
-				var t_r = FP_adder.t_remaining.val();
-				if (t_r == 1) {
-					// done
-					if (FP_adder.type.val() == "add") {
-						var tmp = FP_adder.src1.val() + FP_adder.src2.val();
-						FP_adder.value.set(tmp);
-					} else {
-						var tmp = FP_adder.src1.val() - FP_adder.src2.val();
-						FP_adder.value.set(tmp);
-					}
-					
-					// mark as done
-					FP_adder.t_remaining.set(0);
-					instructions.set_execution(FP_adder.PC.val());
-				} else if (t_r > 1) {
-					// WIP
-					FP_adder.t_remaining.set(FP_adder.t_remaining.val() - 1);
-				}
-			}
-			
-			// [immediately after CDB broadcast]
-			if (FP_adder.is_running.val() == false ||
-				FP_adder.name.val() == WB_name) {
-				// not running : find a ready RS
-				var e = undefined;
-				var check = (t) => {
-					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
-						return;
-					}
-					if (!e && t.Qj.val() == "" && t.Qk.val() == "") {
-						e = t;
-					}
-				};
-				for (var i in RS_add) check(RS_add[i]);
-				
-				if (!e) return;
-				
-				var is_add = e.op.val() == "ADDD";
-				
-				e.is_running.set(true);
-				
-				if (is_add) {
-					FP_adder.type.set("add");
-					FP_adder.t_remaining.set(conf.t_add - 1);
-				} else {
-					FP_adder.type.set("sub");
-					FP_adder.t_remaining.set(conf.t_sub - 1);
-				}
-				
-				FP_adder.src1.set(e.Vj.val());
-				FP_adder.src2.set(e.Vk.val());
-				FP_adder.name.set(e.name);
-				FP_adder.value.set("");
-				FP_adder.is_running.set(true);
-				FP_adder.PC.set(e.PC.val());
-			}*/
 		};
 		
-		var EXE_mul_div = () => {
-			if (FP_multiplier.is_running.val() == true) {
-				// is running
-				// [removed some useless and buggy code]
+		var EXE_mul = () => {
+			// detect & run in reverse order
+			// O(n) lines, O(n) latency
+			
+			var n = conf.t_mul.length;
+			
+			var can_advance;
+			for (var i = n - 1; i >= 0; i--) {
+				var FPM = FP_multiplier[i];
 				
-				var t_r = FP_multiplier.t_remaining.val();
-				if (t_r == 1) {
-					// done
-					if (FP_multiplier.type.val() == "mul") {
-						var tmp = FP_multiplier.src1.val() * FP_multiplier.src2.val();
-						FP_multiplier.value.set(tmp);
-					} else {
-						var tmp = FP_multiplier.src1.val() / FP_multiplier.src2.val();
-						FP_multiplier.value.set(tmp);
+				var has_advanced;
+				
+				if (FPM.is_running.val() == true) {
+					var t_r = FPM.t_remaining.val();
+					
+					if (i == n - 1 && t_r == 1) {
+						// done
+						var tmp = FPM.src1.val() * FPM.src2.val();
+						FPM.value.set(tmp);
+						// mark as done
+						instructions.set_execution(FPM.PC.val());
 					}
 					
-					// mark as done
-					FP_multiplier.t_remaining.set(0);
-					instructions.set_execution(FP_multiplier.PC.val());
-				} else if (t_r > 1) {
-					// WIP
-					FP_multiplier.t_remaining.set(FP_multiplier.t_remaining.val() - 1);
+					if (t_r > 0) {
+						FPM.t_remaining.set(t_r - 1);
+					}
+					
+					if (i < n - 1 && t_r == 0 && can_advance) {
+						// advance to i + 1
+						
+						var FPM_next = FP_multiplier[i + 1];
+						FPM_next.is_running.set(true);
+						FPM_next.type.set(FPM.type.val());
+						FPM_next.src1.set(FPM.src1.val());
+						FPM_next.src2.set(FPM.src2.val());
+						FPM_next.name.set(FPM.name.val());
+						FPM_next.value.set(FPM.value.val());
+						FPM_next.PC.set(FPM.PC.val());
+						FPM_next.t_remaining.set(conf.t_mul[i + 1] - 1);
+						// special case
+						if (i == n - 2 && conf.t_mul[i + 1] - 1 == 0) {
+							// done
+							var tmp = FPM.src1.val() * FPM.src2.val();
+							FPM_next.value.set(tmp);
+							// mark as done
+							instructions.set_execution(FPM.PC.val());
+						}
+						
+						FPM.is_running.set(false);
+						FPM.type.set("");
+						FPM.src1.set("");
+						FPM.src2.set("");
+						FPM.name.set("");
+						FPM.value.set("");
+						FPM.PC.set("");
+						FPM.t_remaining.set("");
+						
+						has_advanced = true;
+					} else {
+						has_advanced = false;
+					}
+				}
+				
+				// can advance to stage i ?
+				if (i == n - 1) {
+					can_advance = !FPM.is_running.val()
+						|| FPM.name.val() == WB_name;
+				} else {
+					can_advance = !FPM.is_running.val()
+						|| has_advanced;
 				}
 			}
 			
-			// [immediately after CDB broadcast]
-			if (FP_multiplier.is_running.val() == false ||
-				FP_multiplier.name.val() == WB_name) {
-				// not running : find a ready RS
+			if (can_advance) {
+				// find a RS
 				var e = undefined;
 				var check = (t) => {
 					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
-					if (!e && t.Qj.val() == "" && t.Qk.val() == "") {
+					if (!e && t.op.val() == "MULD" && t.Qj.val() == "" && t.Qk.val() == "") {
 						e = t;
 					}
 				};
@@ -776,24 +759,69 @@ var CPU = (function() {
 				
 				if (!e) return;
 				
-				var is_add = e.op.val() == "MULD";
+				e.is_running.set(true);
+				
+				FP_multiplier[0].type.set("mul");
+				
+				FP_multiplier[0].t_remaining.set(conf.t_mul[0] - 1);
+				
+				FP_multiplier[0].src1.set(e.Vj.val());
+				FP_multiplier[0].src2.set(e.Vk.val());
+				FP_multiplier[0].name.set(e.name);
+				FP_multiplier[0].value.set("");
+				FP_multiplier[0].is_running.set(true);
+				FP_multiplier[0].PC.set(e.PC.val());
+			}
+		};
+		
+		var EXE_div = () => {
+			if (FP_divider.is_running.val() == true) {
+				// is running
+				// [removed some useless and buggy code]
+				
+				var t_r = FP_divider.t_remaining.val();
+				if (t_r == 1) {
+					// done
+					var tmp = FP_divider.src1.val() / FP_divider.src2.val();
+					FP_divider.value.set(tmp);
+					
+					// mark as done
+					FP_divider.t_remaining.set(0);
+					instructions.set_execution(FP_divider.PC.val());
+				} else if (t_r > 1) {
+					// WIP
+					FP_divider.t_remaining.set(FP_divider.t_remaining.val() - 1);
+				}
+			}
+			
+			// [immediately after CDB broadcast]
+			if (FP_divider.is_running.val() == false ||
+				FP_divider.name.val() == WB_name) {
+				// not running : find a ready RS
+				var e = undefined;
+				var check = (t) => {
+					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
+						return;
+					}
+					if (!e && t.op.val() == "DIVD" && t.Qj.val() == "" && t.Qk.val() == "") {
+						e = t;
+					}
+				};
+				for (var i in RS_mul) check(RS_mul[i]);
+				
+				if (!e) return;
 				
 				e.is_running.set(true);
 				
-				if (is_add) {
-					FP_multiplier.type.set("mul");
-					FP_multiplier.t_remaining.set(conf.t_mul - 1);
-				} else {
-					FP_multiplier.type.set("div");
-					FP_multiplier.t_remaining.set(conf.t_div - 1);
-				}
+				FP_divider.type.set("div");
+				FP_divider.t_remaining.set(conf.t_div - 1);
 				
-				FP_multiplier.src1.set(e.Vj.val());
-				FP_multiplier.src2.set(e.Vk.val());
-				FP_multiplier.name.set(e.name);
-				FP_multiplier.value.set("");
-				FP_multiplier.is_running.set(true);
-				FP_multiplier.PC.set(e.PC.val());
+				FP_divider.src1.set(e.Vj.val());
+				FP_divider.src2.set(e.Vk.val());
+				FP_divider.name.set(e.name);
+				FP_divider.value.set("");
+				FP_divider.is_running.set(true);
+				FP_divider.PC.set(e.PC.val());
 			}
 		};
 		
@@ -805,7 +833,8 @@ var CPU = (function() {
 			EXE_add_sub();
 			
 			// (3) mul & div
-			EXE_mul_div();
+			EXE_mul();
+			EXE_div();
 		};
 		
 		var CDB_write = (name, value) => {
@@ -980,25 +1009,69 @@ var CPU = (function() {
 			return true;
 		};
 		
-		var WB_mul_div = () => {
-			if (FP_multiplier.is_running.val() == false) {
+		var WB_mul = () => {
+			var n = conf.t_mul.length;
+			var FPM_last = FP_multiplier[n - 1];
+			
+			if (FPM_last.is_running.val() == false) {
 				return false;
 			}
-			if (FP_multiplier.t_remaining.val() != 0) {
+			if (FPM_last.t_remaining.val() != 0) {
 				return false;
 			}
 			
 			// mul/div : write to CDB
-			CDB_write(FP_multiplier.name.val(), FP_multiplier.value.val());
+			CDB_write(FPM_last.name.val(), FPM_last.value.val());
 			
-			FP_multiplier.is_running.set(false);
-			FP_multiplier.type.set("");
-			FP_multiplier.name.set("");
-			FP_multiplier.value.set("");
-			FP_multiplier.t_remaining.set("");
-			FP_multiplier.src1.set("");
-			FP_multiplier.src2.set("");
-			FP_multiplier.PC.set("");
+			FPM_last.is_running.set(false);
+			FPM_last.type.set("");
+			FPM_last.name.set("");
+			FPM_last.value.set("");
+			FPM_last.t_remaining.set("");
+			FPM_last.src1.set("");
+			FPM_last.src2.set("");
+			FPM_last.PC.set("");
+			
+			var e = undefined;
+			var check = (t) => {
+				if (t.is_running.val()) {
+					e = t;
+				}
+			};
+			for (var i in RS_mul) check(RS_mul[i]);
+			
+			e.is_running.set(false);
+			e.busy.set("No");
+			e.PC.set("");
+			e.Vj.set("");
+			e.Qj.set("");
+			e.Vk.set("");
+			e.Qk.set("");
+			e.op.set("");
+			instructions.set_writeback(e.PC.val());
+			
+			return true;
+		};
+		
+		var WB_div = () => {
+			if (FP_divider.is_running.val() == false) {
+				return false;
+			}
+			if (FP_divider.t_remaining.val() != 0) {
+				return false;
+			}
+			
+			// mul/div : write to CDB
+			CDB_write(FP_divider.name.val(), FP_divider.value.val());
+			
+			FP_divider.is_running.set(false);
+			FP_divider.type.set("");
+			FP_divider.name.set("");
+			FP_divider.value.set("");
+			FP_divider.t_remaining.set("");
+			FP_divider.src1.set("");
+			FP_divider.src2.set("");
+			FP_divider.PC.set("");
 			
 			var e = undefined;
 			var check = (t) => {
@@ -1032,7 +1105,8 @@ var CPU = (function() {
 			if (WB_add_sub() == true) return;
 			
 			// (3) mul & div
-			if (WB_mul_div() == true) return;
+			if (WB_mul() == true) return;
+			if (WB_div() == true) return;
 		};
 		
 		var f = function() {
@@ -1233,17 +1307,6 @@ var CPU = (function() {
 		};
 		
 		// (10) FP adder
-		/*FP_adder = {
-			is_running : HDL.signal(
-				ui.update_func(ui_ele.FPA.is_running)).set(false),
-			type : HDL.signal(ui.update_func(ui_ele.FPA.type)).set(""),
-			PC : HDL.signal(ui.update_func(ui_ele.FPA.PC)).set(""),
-			src1 : HDL.signal(ui.update_func(ui_ele.FPA.src1)).set(""),
-			src2 : HDL.signal(ui.update_func(ui_ele.FPA.src2)).set(""),
-			name : HDL.signal(ui.update_func(ui_ele.FPA.name)).set(""),
-			value : HDL.signal(ui.update_func(ui_ele.FPA.value)).set(""),
-			t_remaining : HDL.signal(() => 0)
-		};*/
 		(() => {
 			var n = conf.t_add_sub.length;
 			
@@ -1265,16 +1328,37 @@ var CPU = (function() {
 		})();
 		
 		// (11) FP multiplier
-		FP_multiplier = {
+		(() => {
+			var n = conf.t_mul.length;
+			
+			FP_multiplier = [];
+			for (var i = 0; i < n; i++) {
+				var FPM = ui_ele.FPM[i];
+				FP_multiplier.push({
+					is_running : HDL.signal(
+						ui.update_func(FPM.busy)).set(false),
+					type : HDL.signal(ui.update_func(FPM.op)).set(""),
+					PC : HDL.signal(() => 0).set(""),
+					src1 : HDL.signal(() => 0).set(""),
+					src2 : HDL.signal(() => 0).set(""),
+					name : HDL.signal(ui.update_func(FPM.name)).set(""),
+					value : HDL.signal(ui.update_func(FPM.value)).set(""),
+					t_remaining : HDL.signal(ui.update_func(FPM.time)).set("")
+				});
+			}
+		})();
+		
+		// (12) FP divider
+		FP_divider = {
 			is_running : HDL.signal(
-				ui.update_func(ui_ele.FPM.is_running)).set(false),
-			type : HDL.signal(ui.update_func(ui_ele.FPM.type)).set(""),
-			PC : HDL.signal(ui.update_func(ui_ele.FPM.PC)).set(""),
-			src1 : HDL.signal(ui.update_func(ui_ele.FPM.src1)).set(""),
-			src2 : HDL.signal(ui.update_func(ui_ele.FPM.src2)).set(""),
-			name : HDL.signal(ui.update_func(ui_ele.FPM.name)).set(""),
-			value : HDL.signal(ui.update_func(ui_ele.FPM.value)).set(""),
-			t_remaining : HDL.signal(() => 0)
+				ui.update_func(ui_ele.FPD.is_running)).set(false),
+			type : HDL.signal(ui.update_func(ui_ele.FPD.type)).set(""),
+			PC : HDL.signal(() => 0).set(""),
+			src1 : HDL.signal(() => 0).set(""),
+			src2 : HDL.signal(() => 0).set(""),
+			name : HDL.signal(ui.update_func(ui_ele.FPD.name)).set(""),
+			value : HDL.signal(() => 0).set(""),
+			t_remaining : HDL.signal(ui.update_func(ui_ele.FPD.time)).set("")
 		};
 		
 		

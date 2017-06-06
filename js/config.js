@@ -9,7 +9,7 @@ var config = (function() {
 		n_FP_registers : 11,
 		n_INT_registers : 11,
 		t_add_sub : [1, 1],
-		t_mul : 10,
+		t_mul : [2, 2, 2, 2, 2],
 		t_div : 40,
 		t_load : 2,
 		t_store : 2,

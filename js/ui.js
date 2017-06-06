@@ -247,28 +247,39 @@ var ui = (function() {
 			}
 			
 			elements.FPA = FPA;
-			
-			// elements.FPA = {
-			// 	is_running : $("#FPA_is_running"),
-			// 	type : $("#FPA_type"),
-			// 	PC : $("#FPA_PC"),
-			// 	src1 : $("#FPA_src1"),
-			// 	src2 : $("#FPA_src2"),
-			// 	name : $("#FPA_name"),
-			// 	value : $("#FPA_value")
-			// };
 		})();
 		
 		// (9) init FP Multiplier
 		(() => {
-			elements.FPM = {
-				is_running : $("#FPM_is_running"),
-				type : $("#FPM_type"),
-				PC : $("#FPM_PC"),
-				src1 : $("#FPM_src1"),
-				src2 : $("#FPM_src2"),
-				name : $("#FPM_name"),
-				value : $("#FPM_value")
+			var tbody = $(FP_mul_table).find("tbody");
+			var trs = tbody.find("tr");
+			for (var i = 0; i < trs.length; i++) {
+				trs[i].parentElement.removeChild(trs[i]);
+			}
+			
+			var n = conf.t_mul.length;
+			var FPM = [];
+			for (var i = 0; i < n; i++) {
+				var tr = $("<tr>");
+				var tmp = {};
+				["stage", "busy", "op", "name", "time"].forEach((s) => {
+					tr.append(tmp[s] = $("<td>"));
+				});
+				tbody.append(tr);
+				tmp.stage.text(i);
+				FPM.push(tmp);
+			}
+			
+			elements.FPM = FPM;
+		})();
+		
+		// (10) init FP Divider
+		(() => {
+			elements.FPD = {
+				is_running : $("#FPD_is_running"),
+				type : $("#FPD_type"),
+				name : $("#FPD_name"),
+				time : $("#FPD_time")
 			};
 		})();
 		
