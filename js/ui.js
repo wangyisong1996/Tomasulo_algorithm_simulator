@@ -18,6 +18,9 @@ var ui = (function() {
 	var FP_registers_table;
 	var INT_registers_table;
 	var memory_table;
+	var FP_add_table;
+	var FP_mul_table;
+	var FP_div_table;
 	
 	var CPU_cycles_text;
 	var CPU_PC_text;
@@ -53,6 +56,9 @@ var ui = (function() {
 		FP_registers_table = get_e("FP_registers_table");
 		INT_registers_table = get_e("INT_registers_table");
 		memory_table = get_e("memory_table");
+		FP_add_table = get_e("FP_add_table");
+		FP_mul_table = get_e("FP_mul_table");
+		FP_div_table = get_e("FP_div_table");
 		
 		CPU_cycles_text = get_e("CPU_cycles");
 		CPU_PC_text = get_e("CPU_PC");
@@ -214,24 +220,43 @@ var ui = (function() {
 			elements.MC = {
 				is_running : $("#MC_is_running"),
 				type : $("#MC_type"),
-				PC : $("#MC_PC"),
-				addr : $("#MC_addr"),
 				name : $("#MC_name"),
-				value : $("#MC_value")
+				time : $("#MC_time")
 			};
 		})();
 		
 		// (8) init FP Adder
 		(() => {
-			elements.FPA = {
-				is_running : $("#FPA_is_running"),
-				type : $("#FPA_type"),
-				PC : $("#FPA_PC"),
-				src1 : $("#FPA_src1"),
-				src2 : $("#FPA_src2"),
-				name : $("#FPA_name"),
-				value : $("#FPA_value")
-			};
+			var tbody = $(FP_add_table).find("tbody");
+			var trs = tbody.find("tr");
+			for (var i = 0; i < trs.length; i++) {
+				trs[i].parentElement.removeChild(trs[i]);
+			}
+			
+			var n = conf.t_add_sub.length;
+			var FPA = [];
+			for (var i = 0; i < n; i++) {
+				var tr = $("<tr>");
+				var tmp = {};
+				["stage", "busy", "op", "name", "time"].forEach((s) => {
+					tr.append(tmp[s] = $("<td>"));
+				});
+				tbody.append(tr);
+				tmp.stage.text(i);
+				FPA.push(tmp);
+			}
+			
+			elements.FPA = FPA;
+			
+			// elements.FPA = {
+			// 	is_running : $("#FPA_is_running"),
+			// 	type : $("#FPA_type"),
+			// 	PC : $("#FPA_PC"),
+			// 	src1 : $("#FPA_src1"),
+			// 	src2 : $("#FPA_src2"),
+			// 	name : $("#FPA_name"),
+			// 	value : $("#FPA_value")
+			// };
 		})();
 		
 		// (9) init FP Multiplier
