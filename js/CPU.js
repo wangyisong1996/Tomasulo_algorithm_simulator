@@ -346,7 +346,8 @@ var CPU = (function() {
 		
 		var load_queue_allocate = () => {
 			for (var i in load_queue) {
-				if (load_queue[i].busy.val() == "No") {
+				if (load_queue[i].busy.val() == "No"
+					|| load_queue[i].name == WB_name) {
 					return load_queue[i];
 				}
 			}
@@ -355,7 +356,8 @@ var CPU = (function() {
 		
 		var store_queue_allocate = () => {
 			for (var i in store_queue) {
-				if (store_queue[i].busy.val() == "No") {
+				if (store_queue[i].busy.val() == "No"
+					|| store_queue[i].name == WB_name) {
 					return store_queue[i];
 				}
 			}
@@ -364,7 +366,8 @@ var CPU = (function() {
 		
 		var RS_add_allocate = () => {
 			for (var i in RS_add) {
-				if (RS_add[i].busy.val() == "No") {
+				if (RS_add[i].busy.val() == "No"
+					|| RS_add[i].name == WB_name) {
 					return RS_add[i];
 				}
 			}
@@ -373,7 +376,8 @@ var CPU = (function() {
 		
 		var RS_mul_allocate = () => {
 			for (var i in RS_mul) {
-				if (RS_mul[i].busy.val() == "No") {
+				if (RS_mul[i].busy.val() == "No"
+					|| RS_mul[i].name == WB_name) {
 					return RS_mul[i];
 				}
 			}
@@ -544,6 +548,131 @@ var CPU = (function() {
 		};
 		
 		var EXE_add_sub = () => {
+			// completely rewrite ...
+			// feel awkward about pipelines
+			
+			// detect & run in reverse order
+			// O(n) lines, O(n) latency
+			
+			var n = conf.t_add_sub.length;
+			
+			var can_advance;
+			for (var i = n - 1; i >= 0; i--) {
+				var FPA = FP_adder[i];
+				
+				var has_advanced;
+				
+				if (FPA.is_running.val() == true) {
+					var t_r = FPA.t_remaining.val();
+					
+					if (i == n - 1 && t_r == 1) {
+						// done
+						if (FPA.type.val() == "add") {
+							var tmp = FPA.src1.val() + FPA.src2.val();
+							FPA.value.set(tmp);
+						} else {
+							var tmp = FPA.src1.val() - FPA.src2.val();
+							FPA.value.set(tmp);
+						}
+						// mark as done
+						instructions.set_execution(FPA.PC.val());
+					}
+					
+					if (t_r > 0) {
+						FPA.t_remaining.set(t_r - 1);
+					}
+					
+					if (i < n - 1 && t_r == 0 && can_advance) {
+						// advance to i + 1
+						
+						var FPA_next = FP_adder[i + 1];
+						FPA_next.is_running.set(true);
+						FPA_next.type.set(FPA.type.val());
+						FPA_next.src1.set(FPA.src1.val());
+						FPA_next.src2.set(FPA.src2.val());
+						FPA_next.name.set(FPA.name.val());
+						FPA_next.value.set(FPA.value.val());
+						FPA_next.PC.set(FPA.PC.val());
+						FPA_next.t_remaining.set(conf.t_add_sub[i + 1] - 1);
+						// special case
+						if (i == n - 2 && conf.t_add_sub[i + 1] - 1 == 0) {
+							// done
+							if (FPA.type.val() == "add") {
+								var tmp = FPA.src1.val() + FPA.src2.val();
+								FPA_next.value.set(tmp);
+							} else {
+								var tmp = FPA.src1.val() - FPA.src2.val();
+								FPA_next.value.set(tmp);
+							}
+							// mark as done
+							instructions.set_execution(FPA.PC.val());
+						}
+						
+						FPA.is_running.set(false);
+						FPA.type.set("");
+						FPA.src1.set("");
+						FPA.src2.set("");
+						FPA.name.set("");
+						FPA.value.set("");
+						FPA.PC.set("");
+						FPA.t_remaining.set("");
+						
+						has_advanced = true;
+					} else {
+						has_advanced = false;
+					}
+				}
+				
+				// can advance to stage i ?
+				if (i == n - 1) {
+					can_advance = !FPA.is_running.val()
+						|| FPA.name.val() == WB_name;
+				} else {
+					can_advance = !FPA.is_running.val()
+						|| has_advanced;
+				}
+			}
+			
+			if (can_advance) {
+				// find a RS
+				var e = undefined;
+				var check = (t) => {
+					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
+						return;
+					}
+					if (!e && t.Qj.val() == "" && t.Qk.val() == "") {
+						e = t;
+					}
+				};
+				for (var i in RS_add) check(RS_add[i]);
+				
+				if (!e) return;
+				
+				var is_add = e.op.val() == "ADDD";
+				
+				e.is_running.set(true);
+				
+				if (is_add) {
+					FP_adder[0].type.set("add");
+					
+				} else {
+					FP_adder[0].type.set("sub");
+				}
+				
+				FP_adder[0].t_remaining.set(conf.t_add_sub[0] - 1);
+				
+				FP_adder[0].src1.set(e.Vj.val());
+				FP_adder[0].src2.set(e.Vk.val());
+				FP_adder[0].name.set(e.name);
+				FP_adder[0].value.set("");
+				FP_adder[0].is_running.set(true);
+				FP_adder[0].PC.set(e.PC.val());
+			}
+			
+			
+			
+			/*
+			///
 			if (FP_adder.is_running.val() == true) {
 				// is running
 				
@@ -602,7 +731,7 @@ var CPU = (function() {
 				FP_adder.value.set("");
 				FP_adder.is_running.set(true);
 				FP_adder.PC.set(e.PC.val());
-			}
+			}*/
 		};
 		
 		var EXE_mul_div = () => {
@@ -808,28 +937,31 @@ var CPU = (function() {
 		};
 		
 		var WB_add_sub = () => {
-			if (FP_adder.is_running.val() == false) {
+			var n = conf.t_add_sub.length;
+			var FPA_last = FP_adder[n - 1];
+			
+			if (FPA_last.is_running.val() == false) {
 				return false;
 			}
-			if (FP_adder.t_remaining.val() != 0) {
+			if (FPA_last.t_remaining.val() != 0) {
 				return false;
 			}
 			
 			// add/sub : write to CDB
-			CDB_write(FP_adder.name.val(), FP_adder.value.val());
+			CDB_write(FPA_last.name.val(), FPA_last.value.val());
 			
-			FP_adder.is_running.set(false);
-			FP_adder.type.set("");
-			FP_adder.name.set("");
-			FP_adder.value.set("");
-			FP_adder.t_remaining.set("");
-			FP_adder.src1.set("");
-			FP_adder.src2.set("");
-			FP_adder.PC.set("");
+			FPA_last.is_running.set(false);
+			FPA_last.type.set("");
+			FPA_last.name.set("");
+			FPA_last.value.set("");
+			FPA_last.t_remaining.set("");
+			FPA_last.src1.set("");
+			FPA_last.src2.set("");
+			FPA_last.PC.set("");
 			
 			var e = undefined;
 			var check = (t) => {
-				if (t.is_running.val()) {
+				if (t.name == FPA_last.name.val()) {
 					e = t;
 				}
 			};
@@ -1101,7 +1233,7 @@ var CPU = (function() {
 		};
 		
 		// (10) FP adder
-		FP_adder = {
+		/*FP_adder = {
 			is_running : HDL.signal(
 				ui.update_func(ui_ele.FPA.is_running)).set(false),
 			type : HDL.signal(ui.update_func(ui_ele.FPA.type)).set(""),
@@ -1111,7 +1243,26 @@ var CPU = (function() {
 			name : HDL.signal(ui.update_func(ui_ele.FPA.name)).set(""),
 			value : HDL.signal(ui.update_func(ui_ele.FPA.value)).set(""),
 			t_remaining : HDL.signal(() => 0)
-		};
+		};*/
+		(() => {
+			var n = conf.t_add_sub.length;
+			
+			FP_adder = [];
+			for (var i = 0; i < n; i++) {
+				var FPA = ui_ele.FPA[i];
+				FP_adder.push({
+					is_running : HDL.signal(
+						ui.update_func(FPA.busy)).set(false),
+					type : HDL.signal(ui.update_func(FPA.op)).set(""),
+					PC : HDL.signal(() => 0).set(""),
+					src1 : HDL.signal(() => 0).set(""),
+					src2 : HDL.signal(() => 0).set(""),
+					name : HDL.signal(ui.update_func(FPA.name)).set(""),
+					value : HDL.signal(ui.update_func(FPA.value)).set(""),
+					t_remaining : HDL.signal(ui.update_func(FPA.time)).set("")
+				});
+			}
+		})();
 		
 		// (11) FP multiplier
 		FP_multiplier = {

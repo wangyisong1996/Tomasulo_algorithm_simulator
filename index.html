@@ -169,7 +169,7 @@
 				<thead>
 					<caption> Memory Controller </caption>
 					<tr>
-						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Running </th>
 						<th class="col-xs-1"> Op </th>
 						<th class="col-xs-1"> Name </th>
 						<th class="col-xs-1"> Time </th>
@@ -177,23 +177,23 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td> <span id="MC_is_running">false</span> </td>
-						<td> <span id="MC_type"></span> </td>
-						<td> <span id="MC_name"></span> </td>
-						<td> <span id="MC_time"></span> </td>
+						<td id="MC_is_running">false</td>
+						<td id="MC_type"></td>
+						<td id="MC_name"></td>
+						<td id="MC_time"></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 		<div class="col-xs-3">
 			<table id="FP_add_table" class="table table-hover table-bordered">
+				<caption> Floating Point Adder </caption>
 				<thead>
-					<caption> Floating Point Adder </caption>
 					<tr>
 						<th class="col-xs-1"> Stage </th>
-						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Running </th>
 						<th class="col-xs-1"> Op </th>
-						<th class="col-xs-1"> PC </th>
+						<th class="col-xs-1"> Name </th>
 						<th class="col-xs-1"> Time </th>
 					</tr>
 				</thead>
@@ -203,13 +203,13 @@
 		</div>
 		<div class="col-xs-3">
 			<table id="FP_mul_table" class="table table-hover table-bordered">
+				<caption> Floating Point Multiplier </caption>
 				<thead>
-					<caption> Floating Point Multiplier </caption>
 					<tr>
 						<th class="col-xs-1"> Stage </th>
-						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Running </th>
 						<th class="col-xs-1"> Op </th>
-						<th class="col-xs-1"> PC </th>
+						<th class="col-xs-1"> Name </th>
 						<th class="col-xs-1"> Time </th>
 					</tr>
 				</thead>
@@ -219,13 +219,13 @@
 		</div>
 		<div class="col-xs-3">
 			<table id="FP_div_table" class="table table-hover table-bordered">
+				<caption> Floating Point Divider </caption>
 				<thead>
-					<caption> Floating Point Divider </caption>
 					<tr>
 						<th class="col-xs-1"> Stage </th>
-						<th class="col-xs-1"> Busy </th>
+						<th class="col-xs-1"> Running </th>
 						<th class="col-xs-1"> Op </th>
-						<th class="col-xs-1"> PC </th>
+						<th class="col-xs-1"> Name </th>
 						<th class="col-xs-1"> Time </th>
 					</tr>
 				</thead>
