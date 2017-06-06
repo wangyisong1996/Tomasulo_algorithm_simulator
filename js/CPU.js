@@ -475,16 +475,9 @@ var CPU = (function() {
 			
 			if (memory_controller.is_running.val() == true) {
 				// is running
-				var e = undefined;
-				var check = (t) => {
-					if (t.is_running.val()) {
-						e = t;
-					}
-				};
-				for (var i in load_queue) check(load_queue[i]);
-				for (var i in store_queue) check(store_queue[i]);
 				
-				if (memory_controller.t_remaining.val() <= 1) {
+				var t_r = memory_controller.t_remaining.val();
+				if (t_r == 1) {
 					// done
 					if (memory_controller.type.val() == "load") {
 						// load : get XXX from mem
@@ -496,7 +489,8 @@ var CPU = (function() {
 					
 					// mark as done
 					memory_controller.t_remaining.set(0);
-				} else {
+					instructions.set_execution(memory_controller.PC.val());
+				} else if (t_r > 1) {
 					// working in progress
 					memory_controller.t_remaining.set(
 						memory_controller.t_remaining.val() - 1);
@@ -524,8 +518,6 @@ var CPU = (function() {
 				
 				e.is_running.set(true);
 				
-				instructions.set_execution(e.PC.val());
-				
 				if (is_load) {
 					memory_controller.type.set("load");
 					memory_controller.value.set("");
@@ -543,21 +535,16 @@ var CPU = (function() {
 				memory_controller.is_running.set(true);
 				memory_controller.addr.set(e.addr.val());
 				memory_controller.name.set(e.name);
+				memory_controller.PC.set(e.PC.val());
 			}
 		};
 		
 		var EXE_add_sub = () => {
 			if (FP_adder.is_running.val() == true) {
 				// is running
-				var e = undefined;
-				var check = (t) => {
-					if (t.is_running.val()) {
-						e = t;
-					}
-				};
-				for (var i in RS_add) check(RS_add[i]);
 				
-				if (FP_adder.t_remaining.val() <= 1) {
+				var t_r = FP_adder.t_remaining.val();
+				if (t_r == 1) {
 					// done
 					if (FP_adder.type.val() == "add") {
 						var tmp = FP_adder.src1.val() + FP_adder.src2.val();
@@ -569,7 +556,8 @@ var CPU = (function() {
 					
 					// mark as done
 					FP_adder.t_remaining.set(0);
-				} else {
+					instructions.set_execution(FP_adder.PC.val());
+				} else if (t_r > 1) {
 					// WIP
 					FP_adder.t_remaining.set(FP_adder.t_remaining.val() - 1);
 				}
@@ -592,8 +580,6 @@ var CPU = (function() {
 				
 				e.is_running.set(true);
 				
-				instructions.set_execution(e.PC.val());
-				
 				if (is_add) {
 					FP_adder.type.set("add");
 					FP_adder.t_remaining.set(conf.t_add - 1);
@@ -607,21 +593,17 @@ var CPU = (function() {
 				FP_adder.name.set(e.name);
 				FP_adder.value.set("");
 				FP_adder.is_running.set(true);
+				FP_adder.PC.set(e.PC.val());
 			}
 		};
 		
 		var EXE_mul_div = () => {
 			if (FP_multiplier.is_running.val() == true) {
 				// is running
-				var e = undefined;
-				var check = (t) => {
-					if (t.is_running.val()) {
-						e = t;
-					}
-				};
-				for (var i in RS_add) check(RS_add[i]);
+				// [removed some useless and buggy code]
 				
-				if (FP_multiplier.t_remaining.val() <= 1) {
+				var t_r = FP_multiplier.t_remaining.val();
+				if (t_r == 1) {
 					// done
 					if (FP_multiplier.type.val() == "mul") {
 						var tmp = FP_multiplier.src1.val() * FP_multiplier.src2.val();
@@ -633,7 +615,8 @@ var CPU = (function() {
 					
 					// mark as done
 					FP_multiplier.t_remaining.set(0);
-				} else {
+					instructions.set_execution(FP_multiplier.PC.val());
+				} else if (t_r > 1) {
 					// WIP
 					FP_multiplier.t_remaining.set(FP_multiplier.t_remaining.val() - 1);
 				}
@@ -656,8 +639,6 @@ var CPU = (function() {
 				
 				e.is_running.set(true);
 				
-				instructions.set_execution(e.PC.val());
-				
 				if (is_add) {
 					FP_multiplier.type.set("mul");
 					FP_multiplier.t_remaining.set(conf.t_mul - 1);
@@ -671,6 +652,7 @@ var CPU = (function() {
 				FP_multiplier.name.set(e.name);
 				FP_multiplier.value.set("");
 				FP_multiplier.is_running.set(true);
+				FP_multiplier.PC.set(e.PC.val());
 			}
 		};
 		
@@ -753,6 +735,7 @@ var CPU = (function() {
 				memory_controller.name.set("");
 				memory_controller.value.set("");
 				memory_controller.t_remaining.set("");
+				memory_controller.PC.set("");
 				
 				// update the load queue
 				var e = undefined;
@@ -789,6 +772,7 @@ var CPU = (function() {
 				memory_controller.name.set("");
 				memory_controller.value.set("");
 				memory_controller.t_remaining.set("");
+				memory_controller.PC.set("");
 				
 				// update the load queue
 				var e = undefined;
@@ -829,6 +813,7 @@ var CPU = (function() {
 			FP_adder.t_remaining.set("");
 			FP_adder.src1.set("");
 			FP_adder.src2.set("");
+			FP_adder.PC.set("");
 			
 			var e = undefined;
 			var check = (t) => {
@@ -869,6 +854,7 @@ var CPU = (function() {
 			FP_multiplier.t_remaining.set("");
 			FP_multiplier.src1.set("");
 			FP_multiplier.src2.set("");
+			FP_multiplier.PC.set("");
 			
 			var e = undefined;
 			var check = (t) => {
@@ -981,7 +967,7 @@ var CPU = (function() {
 		// (0) cycles & PC
 		// bug fix [2017-05-31] @wys
 		cycles = HDL.signal(ui.CPU_cycles_update_func());
-		cycles.set(0);
+		cycles.set(1);  // should not be '0'
 		PC = HDL.signal(ui.CPU_PC_update_func());
 		PC.set(0);
 		
@@ -1094,6 +1080,7 @@ var CPU = (function() {
 			is_running : HDL.signal(
 				ui.update_func(ui_ele.MC.is_running)).set(false),
 			type : HDL.signal(ui.update_func(ui_ele.MC.type)).set(""),
+			PC : HDL.signal(ui.update_func(ui_ele.MC.PC)).set(""),
 			addr : HDL.signal(ui.update_func(ui_ele.MC.addr)).set(""),
 			name : HDL.signal(ui.update_func(ui_ele.MC.name)).set(""),
 			value : HDL.signal(ui.update_func(ui_ele.MC.value)).set(""),
@@ -1105,6 +1092,7 @@ var CPU = (function() {
 			is_running : HDL.signal(
 				ui.update_func(ui_ele.FPA.is_running)).set(false),
 			type : HDL.signal(ui.update_func(ui_ele.FPA.type)).set(""),
+			PC : HDL.signal(ui.update_func(ui_ele.FPA.PC)).set(""),
 			src1 : HDL.signal(ui.update_func(ui_ele.FPA.src1)).set(""),
 			src2 : HDL.signal(ui.update_func(ui_ele.FPA.src2)).set(""),
 			name : HDL.signal(ui.update_func(ui_ele.FPA.name)).set(""),
@@ -1117,6 +1105,7 @@ var CPU = (function() {
 			is_running : HDL.signal(
 				ui.update_func(ui_ele.FPM.is_running)).set(false),
 			type : HDL.signal(ui.update_func(ui_ele.FPM.type)).set(""),
+			PC : HDL.signal(ui.update_func(ui_ele.FPM.PC)).set(""),
 			src1 : HDL.signal(ui.update_func(ui_ele.FPM.src1)).set(""),
 			src2 : HDL.signal(ui.update_func(ui_ele.FPM.src2)).set(""),
 			name : HDL.signal(ui.update_func(ui_ele.FPM.name)).set(""),
