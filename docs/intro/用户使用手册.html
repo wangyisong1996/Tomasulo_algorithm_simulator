@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户使用手册</title>
+<link rel="stylesheet" href="https://stackedit.io/res-min/themes/base.css" />
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body><div class="container"><h1 id="用户使用手册"> 用户使用手册</h1>
+
+
+
+<h2 id="软件安装和启动">软件安装和启动</h2>
+
+<p>为了获取到较为良好的用户体验，经过多方考量，我们小组决定直接使用一个网页，通过编写<code>javascript</code>代码来实现Tomasulo算法模拟器，软件的所有文件如下：</p>
+
+<p><img src="imgs/files.png" alt="files" title=""></p>
+
+<p>其中，<code>index.html</code>既是软件的入口，直接用浏览器打开<code>index.html</code>，无须安装其他任何依赖，即可运行本软件。</p>
+
+<p><em>注：请使用最新版的Chrome或者Safari浏览器以获取最佳体验。</em></p>
+
+
+
+<h2 id="软件运行截图及功能介绍">软件运行截图及功能介绍</h2>
+
+<p>软件运行时截图：</p>
+
+<p><img src="imgs/run.png" alt="run" title=""></p>
+
+<p>为了模拟Tomasulo算法，我们使用<code>javascript</code>模拟了一个CPU，<strong>对命令进行硬件级的模拟</strong>；在页面的右上方有5个按钮，我们可以通过这5个按钮控制CPU的行为，包括开关机、启动、暂停和初始化，在页面的中间则是若干表格，描述当前CPU内部的情况，其中“Instruction Queue”表格描述指令队列，“Load/Store Queue”表格表示Tomasulo算法中的存取队列，“Memory”表格则表示内存中对应地址相应的值（注：由于内存一般来说非常大，所以只有被初始化和被修改了的内存块会被显示出来），“Reservation Stations”表格描述Tomasulo算法中的保留站，“Floating Point Registers”和“Integer Registers”则分别描述浮点寄存器和整数寄存器对应的值。</p>
+
+
+
+<h3 id="5个控制按钮">5个控制按钮</h3>
+
+<p>在页面的右上方，是软件的5个控制按钮，你所需要进行的所有操作均可以通过这5个按钮来实现，它们各自的功能如下：</p>
+
+<ul>
+<li><p><img src="imgs/power.png" alt="power" title="">开机关机按钮：默认情况下CPU是关机状态，在关机状态下你可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；<em>当你按下此按钮，CPU将由关机状态切换到开机且暂停状态</em>，此时CPU会根据初始化时设定的内容对页面进行一些设置，比如，操作命令将会被按行解析，分析出每条命令的操作类型、源操作数和目标操作数，然后将其依次放入“Instruction Queue”中，同时也会根据设定的内存值和寄存器值，将“Memory”、“Floating Point Registers”和“Integer Registers”表格中对应的位置进行初始化</p></li>
+<li><p><img src="imgs/start.png" alt="start" title="">运行按钮：<strong>只有CPU处于开机且暂停状态下才能使用此按钮</strong>，点击此按钮CPU将处于自动运行状态，在此种状态下，CPU将以1Hz的时钟周期运行，并且更新的值会出现绿色的闪烁</p></li>
+<li><p><img src="imgs/pause.png" alt="pause" title="">暂停按钮：当CPU处于自动运行状态时，点击此按钮可以将CPU暂停，此时你可以详细查看当前各个表格中的值，你也可以使用运行按钮继续从当前状态启动CPU，也可以使用手动按钮（详见下文）让CPU继续执行一个时钟周期</p></li>
+<li><p><img src="imgs/next.png" alt="next" title="">手动按钮：<strong>只有当CPU处于暂停状态时才可以使用此按钮</strong>，手动按钮既是手动CLK，就是说，每次点击此按钮，都会让CPU执行一个时钟周期；使用此按钮，你可以方便的将CPU运行到你所关心的时钟周期，对于理解Tomasulo算法非常有帮助</p></li>
+<li><p><img src="imgs/options.png" alt="options" title="">选项按钮：点击选项按钮，会弹开如下的对话框，在这个弹出框中你可以进行CPU的初始化设置，最上面的文本框是命令编辑框，你可以将你需要执行的命令按行写入此框中；在“Memory values”编辑框中你可以设置内存的初始值，格式是每行两个数字描述一个内存值，每行的前一个数值表示内存地址，第二个值表示该内存中的值；在“Floating point register values”和“Integer register values”编辑框中你可以设置浮点寄存器和整数寄存器的初始值，格式为每行两个用空格隔开的字符串描述一个寄存器，每行的第一个字符串为寄存器的名字，第二个字符串是该寄存器对应的初始值。<strong>注意，在CPU自动运行状态下按下此按钮会将CPU暂停；按下对话框中的“Save changes”按钮将会自动用对话框中设置的内容对CPU进行初始化并开机，此操作会清空之前CPU的状态，请谨慎使用</strong></p></li>
+</ul>
+
+<p><img src="imgs/options_dialog.png" alt="options_dialog" title=""></p>
+
+
+
+<h3 id="状态机">状态机</h3>
+
+<p>上面5个按钮的各个功能可以用以下状态机进行描述：</p>
+
+<p><img src="imgs/status.png" alt="status" title=""></p></div></body>
+</html>
