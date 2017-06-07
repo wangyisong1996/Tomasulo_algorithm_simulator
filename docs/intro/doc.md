@@ -16,9 +16,9 @@
 
 ![run](imgs/run.png)
 
-为了模拟Tomasulo算法，我们使用`javascript`模拟了一个CPU，**对命令进行硬件级的模拟**。
+为了模拟Tomasulo算法，我们使用`javascript`模拟了一个CPU，**对指令进行硬件级的模拟**。
 
-在页面的右上方有5个按钮（详见下文），我们可以通过这5个按钮控制CPU的行为，包括开关机、启动、暂停和初始化。
+在页面的右上方有5个按钮（详见下文），我们可以通过这5个按钮控制CPU的行为，包括开关机、运行、暂停和初始化。
 
 在页面的中间则是若干表格，描述当前CPU内部的情况，对应情况如下：
 
@@ -30,9 +30,9 @@
 
 ### 5个控制按钮
 
-在页面的右上方，是软件的5个控制按钮，你所需要进行的所有操作均可以通过这5个按钮来实现，它们各自的功能如下：
+在页面的右上方，是软件的5个控制按钮，所需进行的所有操作均可以通过这5个按钮来实现，它们各自的功能如下：
 
-* ![power](imgs/power.png)开机关机按钮：默认情况下CPU是关机状态，在关机状态下你可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；*当你按下此按钮，CPU将由关机状态切换到开机且暂停状态*，此时CPU会根据初始化时设定的内容对页面进行以下设置
+* ![power](imgs/power.png)电源按钮：默认情况下CPU是关机状态，在关机状态下你可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；*当你按下此按钮，CPU将由关机状态切换到开机且暂停状态*，此时CPU会根据初始化时设定的内容对页面进行以下设置：
     * 指令列表将会被按行解析，分析出每条命令的操作类型、源操作数和目标操作数，然后将其依次放入“Instruction Queue”中
     * 根据设定的内存值，将“Memory”表格中对应的位置进行初始化
     * 根据设定的寄存器值，将“Floating Point Registers”和“Integer Registers”表格中对应的位置进行初始化
@@ -86,7 +86,7 @@
 * Src1：每条指令固有属性，表示指令的原操作数1
 * Src2：每条指令固有属性，表示指令的原操作数2
 * Issue：表示在Tomasulo算法中，该指令被发射的时间
-* Execution：表示在Tomasulo算法中，该指令运行完成的时间
+* Exec_comp：表示在Tomasulo算法中，该指令运行完成的时间
 * Writeback：表示在Tomasulo算法中，该指令结果写回的时间
 
 表格的第2~5项是每条指令的固有属性，在运行过程中不会被改变，第一项PC是根据指令的排列顺序依次从0增加，而后3项是Tomasulo算法中所特有的，在CPU运行过程中会逐渐得出其值。
@@ -96,7 +96,7 @@
 “Load/Store Queue”在软件的中上部分，表示Tomasulo算法中的Load Buffer和Store Buffer，其各列的含义如下：
 
 * Name：表示Load Buffer和Store Buffer的名字，在Tomasulo算法的寄存器重命名技术中有重要作用
-* Busy：描述当前行的Load Buffer和Store Buffer是否空闲，如果当前行有为完成的任务，则Busy列为Yes
+* Busy：描述当前行的Load Buffer和Store Buffer是否空闲，如果当前行有未完成的任务，则Busy列为Yes
 * PC：表示当前行的任务是哪一条指令
 * Vk: 只在Store Buffer中存在，表示需要写入的值，如果值未就位，则为空
 * Qk: 只在Store Buffer中存在，表示需要写入值的来自哪个保留站，如果值已就位，则为空
@@ -125,3 +125,41 @@
 ### Floating Point Registers & Integer Registers
 
 “Floating Point Registers”和“Integer Registers”表格描述当前CPU内浮点寄存器和整数寄存器的状态，第一行“Register ID”表示寄存器的标识，第二行“Value”表示对应寄存器的值。
+
+### Memory Controller
+
+“Memory Controller”表格描述当前访存部件的执行情况，访存部件运行速度为2周期/次；表格一共4列，每列的含义如下：
+
+* Running: 表示当前访存部件是否在运行，true表示正在运行
+* Op: 表示描述当前的访存操作是load还是store
+* Name: 表示当前运行中Load Buffer或Store Buffer的名字
+* Time: 表示当前任务完成的剩余时间
+
+### Floating Point Adder
+
+“Floating Point Adder”表格描述当前浮点加减法部件的执行情况，浮点加减法部件为两段流水线，每段流水线1时钟周期；表格一共5列，每列含义如下：
+
+* Stage: 表示流水线阶段编号
+* Running: 表示当前流水线是否正在运行，true表示正在运行
+* Op: 表示当前任务是加法还是减法
+* Name: 表示当前任务保留站的名字
+* Time: 表示当前任务完成的剩余时间
+
+### Floating Point Multiplier
+
+“Floating Point Multiplier”表格描述当前浮点乘法部件的执行情况，浮点乘法部件为五段流水线，每段流水线2时钟周期；表格一共5列，每列含义如下：
+
+* Stage: 表示流水线阶段编号
+* Running: 表示当前流水线是否正在运行，true表示正在运行
+* Op: 表示当前任务类型，为mul
+* Name: 表示当前任务保留站的名字
+* Time: 表示当前任务完成的剩余时间
+
+### Floating Point Divider
+
+“Floating Point Divider”表格描述当前浮点除法部件的执行情况，浮点除法部件每次任务需要40时钟周期；表格一共4列，每列含义如下：
+
+* Running: 表示当前流水线是否正在运行，true表示正在运行
+* Op: 表示当前任务类型，为div
+* Name: 表示当前任务保留站的名字
+* Time: 表示当前任务完成的剩余时间
