@@ -387,7 +387,7 @@ var CPU = (function() {
 		
 		var get_reg_value = (reg, V, Q) => {
 			var reg_val = reg.val();
-			if (reg_val == WB_name) {
+			if ((reg_val + "") == WB_name) {
 				// WB->IF fowarding
 				V.set(WB_value);
 				Q.set("");
@@ -641,7 +641,7 @@ var CPU = (function() {
 					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
-					if (!e && t.Qj.val() == "" && t.Qk.val() == "") {
+					if (!e && (t.Qj.val() + "") == "" && (t.Qk.val() + "") == "") {
 						e = t;
 					}
 				};
@@ -751,7 +751,7 @@ var CPU = (function() {
 					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
-					if (!e && t.op.val() == "MULD" && t.Qj.val() == "" && t.Qk.val() == "") {
+					if (!e && t.op.val() == "MULD" && (t.Qj.val() + "") == "" && (t.Qk.val() + "") == "") {
 						e = t;
 					}
 				};
@@ -803,7 +803,7 @@ var CPU = (function() {
 					if (t.busy.val() != "Yes" || t.is_running.val() == true) {
 						return;
 					}
-					if (!e && t.op.val() == "DIVD" && t.Qj.val() == "" && t.Qk.val() == "") {
+					if (!e && t.op.val() == "DIVD" && (t.Qj.val() + "") == "" && (t.Qk.val() + "") == "") {
 						e = t;
 					}
 				};
