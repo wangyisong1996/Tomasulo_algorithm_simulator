@@ -4,7 +4,7 @@
 
 本软件是用`JavaScript`和`HTML`实现的，软件的所有文件如下：
 
-![files](imgs/files.png)
+<div align="center"><img width="50%" height="50%" src="imgs/files.png"/></div>
 
 其中，`index.html`即是软件的入口，直接用浏览器打开`index.html`，即可运行本软件。
 
@@ -38,19 +38,19 @@
 
 在页面的右上方，是软件的5个控制按钮，所需进行的所有操作均可以通过这5个按钮来实现，它们各自的功能如下：
 
-* ![power](imgs/power.png)电源按钮：默认情况下CPU是关机状态，在关机状态下可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；按下此按钮，CPU将由关机状态切换到开机且暂停状态，此时CPU会根据初始化时设定的内容对页面进行以下设置：
+* <img width="5%" height="5%" src="imgs/power.png"/>电源按钮：默认情况下CPU是关机状态，在关机状态下可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；按下此按钮，CPU将由关机状态切换到开机且暂停状态，此时CPU会根据初始化时设定的内容对页面进行以下设置：
     * CPU的状态清空，寄存器的值变成0
     * 指令会被逐条解析，分析出指令的操作类型、源操作数和目标操作数，然后将其依次放入“Instruction Queue”中
     * 根据设定的内存值，将“Memory”表格中对应的位置进行初始化
     * 根据设定的寄存器值，将“Floating Point Registers”和“Integer Registers”表格中对应的位置进行初始化
 
-* ![start](imgs/start.png)运行按钮：**只有CPU已开机且处于暂停状态下才能使用此按钮**，按下此按钮，CPU将切换到自动运行状态，在此种状态下，CPU将以每秒钟1个时钟周期的速度运行，并且更新的值会出现绿色的闪烁
+* <img width="5%" height="5%" src="imgs/start.png"/>运行按钮：**只有CPU已开机且处于暂停状态下才能使用此按钮**，按下此按钮，CPU将切换到自动运行状态，在此种状态下，CPU将以每秒钟1个时钟周期的速度运行，并且更新的值会出现绿色的闪烁
 
-* ![pause](imgs/pause.png)暂停按钮：当CPU处于自动运行状态时，按下此按钮可以将CPU暂停，此时可以详细查看当前各个表格中的值，可以使用运行按钮继续从当前状态启动CPU，也可以使用单步按钮让CPU单步执行
+* <img width="5%" height="5%" src="imgs/pause.png"/>暂停按钮：当CPU处于自动运行状态时，按下此按钮可以将CPU暂停，此时可以详细查看当前各个表格中的值，可以使用运行按钮继续从当前状态启动CPU，也可以使用单步按钮让CPU单步执行
 
-* ![next](imgs/next.png)单步按钮：**只有当CPU处于暂停状态时才可以使用此按钮**，每次点击此按钮，都会让CPU执行一个时钟周期。使用此按钮，可以方便地将CPU运行到所需的时钟周期，有助于进一步理解Tomasulo算法
+* <img width="5%" height="5%" src="imgs/next.png"/>单步按钮：**只有当CPU处于暂停状态时才可以使用此按钮**，每次点击此按钮，都会让CPU执行一个时钟周期。使用此按钮，可以方便地将CPU运行到所需的时钟周期，有助于进一步理解Tomasulo算法
 
-* ![options](imgs/options.png)选项按钮：点击选项按钮，会弹出如下的对话框，在这个对话框中可以进行CPU的初始化设置：
+* <img width="5%" height="5%" src="imgs/options.png"/>选项按钮：点击选项按钮，会弹出如下的对话框，在这个对话框中可以进行CPU的初始化设置：
     * “Instructions”文本框：可以在该文本框输入CPU初始化时的指令，每行一条指令，指令格式详见下文
     * “Memory values”文本框：在此可以设置内存的初始值，每行描述一个值，具体格式是“`地址 浮点数值`”，其中地址的范围为0到4095。注意：请不要输入重复的地址和非法的值
     * “Floating point register values”和“Integer register values”文本框：在此可以设置浮点寄存器和整数寄存器的初始值，每行描述一个值，具体格式是“`寄存器名称 值`”，浮点寄存器的寄存器名称为`F0`到`F10`，整数寄存器的寄存器为`R0`到`R10`
@@ -84,7 +84,7 @@
 
 在每个时钟周期，相对于上一个时钟周期被更新的值会出现一个绿色的闪烁，以便用户注意，如下图：
 
-<div align="center"><img src="imgs/blink.png"/></div>
+<div align="center"><img width="50%" height="50%" src="imgs/blink.png"/></div>
 
 ### Instruction Queue
 
