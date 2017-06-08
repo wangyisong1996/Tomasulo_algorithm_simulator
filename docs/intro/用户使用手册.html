@@ -7,17 +7,17 @@
 <link rel="stylesheet" href="https://stackedit.io/res-min/themes/base.css" />
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
-<body><div class="container"><h1 id="用户使用手册"> 用户使用手册</h1>
+<body><div class="container"><h1 id="tomasulo-algorithm-simulator-用户使用手册">“Tomasulo Algorithm Simulator” 用户使用手册</h1>
 
 
 
 <h2 id="软件安装和启动">软件安装和启动</h2>
 
-<p>为了获取到较为良好的用户体验，经过多方考量，我们小组决定直接使用一个网页，通过编写<code>javascript</code>代码来实现Tomasulo算法模拟器，软件的所有文件如下：</p>
+<p>本“Tomasulo Algorithm Simulator”是通过编写<code>JavaScript</code>和<code>HTML</code>代码来实现的，软件的所有文件如下：</p>
 
 <p><img src="imgs/files.png" alt="files" title=""></p>
 
-<p>其中，<code>index.html</code>既是软件的入口，直接用浏览器打开<code>index.html</code>，无须安装其他任何依赖，即可运行本软件。</p>
+<p>其中，<code>index.html</code>既是软件的入口，直接用浏览器打开<code>index.html</code>，即可运行本软件。</p>
 
 <p><em>注：请使用最新版的Chrome或者Safari浏览器以获取最佳体验。</em></p>
 
@@ -29,9 +29,9 @@
 
 <p><img src="imgs/run.png" alt="run" title=""></p>
 
-<p>为了模拟Tomasulo算法，我们使用<code>javascript</code>模拟了一个CPU，<strong>对指令进行硬件级的模拟</strong>。</p>
+<p>为了模拟Tomasulo算法，软件使用<code>JavaScript</code>模拟了CPU的运行情况，<strong>对指令进行硬件级的模拟</strong>。</p>
 
-<p>在页面的右上方有5个按钮（详见下文），我们可以通过这5个按钮控制CPU的行为，包括开关机、运行、暂停和初始化。</p>
+<p>在页面的右上方有5个按钮（详见下文），通过这5个按钮可以控制CPU的行为，包括开关机、运行、暂停和初始化。</p>
 
 <p>在页面的中间则是若干表格，描述当前CPU内部的情况，对应情况如下：</p>
 
@@ -41,7 +41,13 @@
 <li>Memory：内存中对应地址及其相应的值（注：由于内存一般来说非常大，所以只有被初始化和被修改了的内存块会被显示出来）</li>
 <li>Reservation Stations：Tomasulo算法中的保留站</li>
 <li>Floating Point Registers &amp; Integer Registers：浮点寄存器和整数寄存器对应的值</li>
+<li>Memory Controller：访存部件运行情况</li>
+<li>Floating Point Adder：浮点加减法部件运行情况</li>
+<li>Floating Point Multiplier：浮点乘法部件运行情况</li>
+<li>Floating Point Divider：浮点除法部件运行情况</li>
 </ul>
+
+<p><strong>注：在软件模拟的Tomasulo算法中，浮点乘法部件和浮点除法部件可以并行工作，但是他们共用保留站。</strong></p>
 
 
 
@@ -50,19 +56,19 @@
 <p>在页面的右上方，是软件的5个控制按钮，所需进行的所有操作均可以通过这5个按钮来实现，它们各自的功能如下：</p>
 
 <ul>
-<li><p><img src="imgs/power.png" alt="power" title="">电源按钮：默认情况下CPU是关机状态，在关机状态下你可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；<em>当你按下此按钮，CPU将由关机状态切换到开机且暂停状态</em>，此时CPU会根据初始化时设定的内容对页面进行以下设置：</p>
+<li><p><img src="imgs/power.png" alt="power" title="">电源按钮：默认情况下CPU是关机状态，在关机状态下可以通过“选项”按钮（详见下文）对CPU进行一些初始化操作；<em>当按下此按钮，CPU将由关机状态切换到开机且暂停状态</em>，此时CPU会根据初始化时设定的内容对页面进行以下设置：</p>
 
 <ul><li>指令列表将会被按行解析，分析出每条命令的操作类型、源操作数和目标操作数，然后将其依次放入“Instruction Queue”中</li>
 <li>根据设定的内存值，将“Memory”表格中对应的位置进行初始化</li>
 <li>根据设定的寄存器值，将“Floating Point Registers”和“Integer Registers”表格中对应的位置进行初始化</li></ul></li>
 <li><p><img src="imgs/start.png" alt="start" title="">运行按钮：<strong>只有CPU已开机且处于暂停状态下才能使用此按钮</strong>，点击此按钮CPU将处于自动运行状态，在此种状态下，CPU将以1Hz的时钟运行，并且更新的值会出现绿色的闪烁</p></li>
-<li><p><img src="imgs/pause.png" alt="pause" title="">暂停按钮：当CPU处于自动运行状态时，点击此按钮可以将CPU暂停，此时你可以详细查看当前各个表格中的值，你可以使用运行按钮继续从当前状态启动CPU，也可以使用单步按钮（详见下文）让CPU继续执行一个时钟周期</p></li>
-<li><p><img src="imgs/next.png" alt="next" title="">单步按钮：<strong>只有当CPU处于暂停状态时才可以使用此按钮</strong>，单步按钮既是单步CLK，就是说，每次点击此按钮，都会让CPU执行一个时钟周期；使用此按钮，你可以方便的将CPU运行到你所关心的时钟周期，对于理解Tomasulo算法非常有帮助</p></li>
-<li><p><img src="imgs/options.png" alt="options" title="">选项按钮：点击选项按钮，会弹开如下的对话框，在这个弹出框中你可以进行CPU的初始化设置：</p>
+<li><p><img src="imgs/pause.png" alt="pause" title="">暂停按钮：当CPU处于自动运行状态时，点击此按钮可以将CPU暂停，此时可以详细查看当前各个表格中的值，可以使用运行按钮继续从当前状态启动CPU，也可以使用单步按钮（详见下文）让CPU继续执行一个时钟周期</p></li>
+<li><p><img src="imgs/next.png" alt="next" title="">单步按钮：<strong>只有当CPU处于暂停状态时才可以使用此按钮</strong>，单步按钮既是单步CLK，每次点击此按钮，都会让CPU执行一个时钟周期；使用此按钮，可以方便的将CPU运行到所关心的时钟周期，对于理解Tomasulo算法非常有帮助</p></li>
+<li><p><img src="imgs/options.png" alt="options" title="">选项按钮：点击选项按钮，会弹开如下的对话框，在这个弹出框中可以进行CPU的初始化设置：</p>
 
-<ul><li>“Instructions”文本框是指令编辑框，你可以将你需要执行的命令按行写入此框中，指令格式详见下文</li>
-<li>“Memory values”编辑框中你可以设置内存的初始值，格式是每行两个数字描述一个内存块的值，每行的前一个数值表示内存地址，第二个值表示该内存中的值</li>
-<li>“Floating point register values”和“Integer register values”编辑框中你可以设置浮点寄存器和整数寄存器的初始值，每行两个用空格隔开的字符串描述一个寄存器，第一个字符串为寄存器的名字，第二个字符串是该寄存器对应的初始值。</li>
+<ul><li>“Instructions”文本框是指令编辑框，可以编辑该文本框输入想要执行的指令，指令格式详见下文</li>
+<li>“Memory values”编辑框中可以设置内存的初始值，格式是每行两个数字描述一个内存块的值，每行的前一个数值表示内存地址，第二个值表示该内存中的值</li>
+<li>“Floating point register values”和“Integer register values”编辑框中，可以设置浮点寄存器和整数寄存器的初始值，每行两个用空格隔开的字符串描述一个寄存器，第一个字符串为寄存器的名字，第二个字符串是该寄存器对应的初始值</li>
 <li><strong>注意，在CPU自动运行状态下按下此按钮会将CPU暂停；按下对话框中的“Save changes”按钮将会自动用对话框中设置的内容对CPU进行初始化，此操作会清空之前CPU的状态，请谨慎使用</strong></li></ul></li>
 </ul>
 
@@ -80,15 +86,15 @@
 
 <h3 id="指令说明">指令说明</h3>
 
-<p>目前我们的模拟器支持以下6条指令，通过选项按钮打开的指令编辑框中每行指令必须是以下6条格式的指令之一：</p>
+<p>目前本模拟器仅支持以下6条指令，通过选项按钮打开的指令编辑框中每行指令必须是以下6条格式的指令之一：</p>
 
 <ol>
 <li><code>ADDD F1, F2, F3</code>：加法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
 <li><code>SUBD F1, F2, F3</code>：减法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
 <li><code>MULD F1, F2, F3</code>：乘法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
 <li><code>DIVD F1, F2, F3</code>：除法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
-<li><code>LD F1, ADDR</code>：载入指令，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>32(R1)</code>,其中<code>R1</code>是整数寄存器的名字</li>
-<li><code>ST F1, ADDR</code>：储存指令，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>32(R1)</code>,其中<code>R1</code>是整数寄存器的名字</li>
+<li><code>LD F1, ADDR</code>：载入指令，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>32(R1)</code>,其中<code>R1</code>是整数寄存器的名字，<code>32</code>是地址相对<code>R1</code>的偏移值</li>
+<li><code>ST F1, ADDR</code>：储存指令，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>24(R4)</code>,其中<code>R4</code>是整数寄存器的名字，<code>24</code>是地址相对<code>R4</code>的偏移值</li>
 </ol>
 
 
@@ -99,7 +105,7 @@
 
 <h3 id="闪烁">闪烁</h3>
 
-<p>为了明显的展示每个时钟周期内改变个值，在每次时钟周期切换的时候，被更新的值会出现一个绿色的闪烁，如下图；凭借此闪烁，用户可以更加方便的注意到被修改的值，便于理解Tomasulo算法。</p>
+<p>为了明显的展示每个时钟周期内值得变化情况，在每次时钟周期切换的时候，被更新的值会出现一个绿色的闪烁，如下图；凭借此闪烁，用户可以更加方便的注意到被修改的值，便于理解Tomasulo算法。</p>
 
 <p><img src="imgs/blink.png" alt="blink" title=""></p>
 
@@ -155,7 +161,7 @@
 <p>“Reservation Stations”即对应于Tomasulo算法中的保留站，在本实验中，一共有3个浮点加减法保留站和2个浮点乘除法保留站，故共有5行；“Reservation Stations”表格共有8列，描述5个保留站的各个属性，其含义如下：</p>
 
 <ul>
-<li>Name：保留站的名字，在Tomasulo算法的寄存器重命名中会用到</li>
+<li>Name：保留站的名字，在Tomasulo算法的寄存器重命名技术中会用到</li>
 <li>Busy：表示当前保留站是否可以使用，Yes表示当前任务未完成</li>
 <li>Op：表示当前任务的操作名称，和“Instruction Queue”中的Name相同</li>
 <li>PC：表示当前任务是哪一条指令</li>
@@ -207,7 +213,7 @@
 <ul>
 <li>Stage: 表示流水线阶段编号</li>
 <li>Running: 表示当前流水线是否正在运行，true表示正在运行</li>
-<li>Op: 表示当前任务类型，为mul</li>
+<li>Op: 表示当前任务类型，恒为mul</li>
 <li>Name: 表示当前任务保留站的名字</li>
 <li>Time: 表示当前任务完成的剩余时间</li>
 </ul>
@@ -220,7 +226,7 @@
 
 <ul>
 <li>Running: 表示当前流水线是否正在运行，true表示正在运行</li>
-<li>Op: 表示当前任务类型，为div</li>
+<li>Op: 表示当前任务类型，恒为div</li>
 <li>Name: 表示当前任务保留站的名字</li>
 <li>Time: 表示当前任务完成的剩余时间</li>
 </ul></div></body>
