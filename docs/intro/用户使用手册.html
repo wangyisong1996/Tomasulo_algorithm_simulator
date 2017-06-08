@@ -38,7 +38,7 @@
 <ul>
 <li>Instruction Queue：指令队列表格</li>
 <li>Load/Store Queue：Tomasulo算法中的存取队列</li>
-<li>Memory：内存中对应地址及其相应的值（注：由于内存一般来说非常大，所以只有被初始化和被修改了的内存块会被显示出来）</li>
+<li>Memory：内存中对应地址及其相应的值（注：由于内存一般来说非常大，所以只有被初始化和被修改了的内存会被显示出来）</li>
 <li>Reservation Stations：Tomasulo算法中的保留站</li>
 <li>Floating Point Registers &amp; Integer Registers：浮点寄存器和整数寄存器对应的值</li>
 <li>Memory Controller：访存部件运行情况</li>
@@ -67,12 +67,12 @@
 <li><p><img src="imgs/options.png" alt="options" title="">选项按钮：点击选项按钮，会弹开如下的对话框，在这个弹出框中可以进行CPU的初始化设置：</p>
 
 <ul><li>“Instructions”文本框是指令编辑框，可以编辑该文本框输入想要执行的指令，指令格式详见下文</li>
-<li>“Memory values”编辑框中可以设置内存的初始值，格式是每行两个数字描述一个内存块的值，每行的前一个数值表示内存地址，第二个值表示该内存中的值</li>
+<li>“Memory values”编辑框中可以设置内存的初始值，格式是每行两个数字描述一个内存的值，每行的前一个数值表示内存地址，第二个值表示该内存中的值，内存地址为0~4095</li>
 <li>“Floating point register values”和“Integer register values”编辑框中，可以设置浮点寄存器和整数寄存器的初始值，每行两个用空格隔开的字符串描述一个寄存器，第一个字符串为寄存器的名字，第二个字符串是该寄存器对应的初始值</li>
 <li><strong>注意，在CPU自动运行状态下按下此按钮会将CPU暂停；按下对话框中的“Save changes”按钮将会自动用对话框中设置的内容对CPU进行初始化，此操作会清空之前CPU的状态，请谨慎使用</strong></li></ul></li>
 </ul>
 
-<p><img src="imgs/options_dialog.png" alt="options_dialog" title=""></p>
+<p><img src="imgs/options_dialog.png"></p>
 
 
 
@@ -80,7 +80,7 @@
 
 <p>上面5个按钮的各个功能可以用以下状态机进行描述：</p>
 
-<p><img src="imgs/status.png" alt="status" title=""></p>
+<p><img src="imgs/status.png"></p>
 
 
 
@@ -89,13 +89,15 @@
 <p>目前本模拟器仅支持以下6条指令，通过选项按钮打开的指令编辑框中每行指令必须是以下6条格式的指令之一：</p>
 
 <ol>
-<li><code>ADDD F1, F2, F3</code>：加法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
-<li><code>SUBD F1, F2, F3</code>：减法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
-<li><code>MULD F1, F2, F3</code>：乘法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
-<li><code>DIVD F1, F2, F3</code>：除法指令，其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
-<li><code>LD F1, ADDR</code>：载入指令，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>32(R1)</code>,其中<code>R1</code>是整数寄存器的名字，<code>32</code>是地址相对<code>R1</code>的偏移值</li>
-<li><code>ST F1, ADDR</code>：储存指令，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>24(R4)</code>,其中<code>R4</code>是整数寄存器的名字，<code>24</code>是地址相对<code>R4</code>的偏移值</li>
+<li><code>ADDD F1, F2, F3</code>：加法指令，计算<code>F1=F2+F3</code>,其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
+<li><code>SUBD F1, F2, F3</code>：减法指令，计算<code>F1=F2-F3</code>,其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
+<li><code>MULD F1, F2, F3</code>：乘法指令，计算<code>F1=F2*F3</code>,其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
+<li><code>DIVD F1, F2, F3</code>：除法指令，计算<code>F1=F2/F3</code>,其中<code>F1</code>,<code>F2</code>,<code>F3</code>均为浮点寄存器的名字</li>
+<li><code>LD F1, ADDR</code>：载入指令，将内存中地址为<code>ADDR</code>的值载入浮点寄存器<code>F1</code>,其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>32(R1)</code>,其中<code>R1</code>是整数寄存器的名字，<code>32</code>是地址相对<code>R1</code>的偏移值</li>
+<li><code>ST F1, ADDR</code>：储存指令，将浮点寄存器<code>F1</code>的值写入内存中地址为<code>ADDR</code>的内存，其中<code>F1</code>为浮点寄存器的名字，<code>ADDR</code>为地址，格式为<code>24(R4)</code>,其中<code>R4</code>是整数寄存器的名字，<code>24</code>是地址相对<code>R4</code>的偏移值</li>
 </ol>
+
+<p><strong>注：内存地址为0~4095，请不要试图访问或写入不在此范围的内存。</strong></p>
 
 
 
@@ -147,14 +149,12 @@
 
 <h3 id="memory">Memory</h3>
 
-<p>“Memory”表格在软件的右上方，描述当前内存的状况，<strong>由于内存一般来说非常大，所以只有被初始化和被修改了的内存块会被显示出来</strong>；“Memory”表格每行描述一块内存，一共两列，其含义如下：</p>
+<p>“Memory”表格在软件的右上方，描述当前内存的状况，<strong>由于内存一般来说非常大，所以只有被初始化和被修改了的内存会被显示出来</strong>；“Memory”表格每行描述一块内存，一共两列，其含义如下：</p>
 
 <ul>
 <li>Addr: 表示内存块的地址</li>
 <li>Value: 表示内存块的值</li>
 </ul>
-
-
 
 <h3 id="reservation-stations">Reservation Stations</h3>
 
