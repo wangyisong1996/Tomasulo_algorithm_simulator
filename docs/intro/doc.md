@@ -57,13 +57,13 @@
     * 点击“Save changes”按钮将保存这些设置，**注意：该操作会使CPU切换到关机状态并重新加载用户界面**
     * 注：若CPU处于自动运行状态，按下选项按钮会使CPU暂停
 
-<div style="text-align: center"><img width="70%" height="70%" src="imgs/options_dialog.png"/></div>
+<div align="center"><img width="50%" height="50%" src="imgs/options_dialog.png"/></div>
 
 ### 状态机
 
 上面5个按钮的各个功能可以用以下状态机进行描述：
 
-<div style="text-align: center"><img width="50%" height="50%" src="imgs/status.png"/></div>
+<div align="center"><img width="50%" height="50%" src="imgs/status.png"/></div>
 
 ### 指令说明
 
@@ -84,7 +84,7 @@
 
 在每个时钟周期，相对于上一个时钟周期被更新的值会出现一个绿色的闪烁，以便用户注意，如下图：
 
-<div style="text-align: center"><img src="imgs/blink.png"/></div>
+<div align="center"><img src="imgs/blink.png"/></div>
 
 ### Instruction Queue
 
